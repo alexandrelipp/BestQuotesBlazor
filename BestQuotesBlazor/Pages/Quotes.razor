@@ -1,0 +1,71 @@
+﻿@page "/quotes"
+
+@using Data
+@using Models
+@inject IQuoteService _quoteService
+
+
+<h1>Page</h1>
+<h4>Add new Quote</h4>
+
+<EditForm Model="@newQuote" OnValidSubmit="@InsertData">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="content" @bind-Value="newQuote.Content" />
+    <InputText id="category" @bind-Value="newQuote.Category" />
+    <InputNumber id="number" @bind-Value="newQuote.Grade" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+</EditForm>
+
+@if (quotes is null)
+{
+
+    <h3>Loading...</h3>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Content</th>
+                <th>Category</th>
+                <th>Grade</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var quote in quotes)
+            {
+                <tr>
+                    <th>@quote.Content </th>
+                    <th>@quote.Category </th>
+                    <th>@quote.Grade/10 </th>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+
+
+}
+
+@code {
+
+    private List<Quote> quotes;
+    private DisplayQuoteModel newQuote = new DisplayQuoteModel();
+
+    private async Task InsertData()
+
+    {
+        var quote = new Quote { Content = newQuote.Content, Category = newQuote.Category, Grade = newQuote.Grade };
+        await _quoteService.AddQuote(quote);
+        quotes.Add(quote);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        quotes = await _quoteService.GetQuotes();
+    }
+
+}
